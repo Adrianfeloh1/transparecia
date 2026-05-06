@@ -4,19 +4,19 @@ import { CheckCircle2 } from 'lucide-react';
 
 <footer class="bg-white/95 backdrop-blur-md border-t border-slate-200 px-8 py-4 flex justify-end gap-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-20 transition-all">
   <div id="footer-actions-default" class="flex gap-4">
-    <button id="btn-descartar" class="px-6 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors">
+    <button id="btn-descartar" class="px-6 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer">
       Descartar
     </button>
-    <button id="btn-aplicar" class="px-6 py-2.5 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 shadow-md shadow-slate-900/20 transition-all">
+    <button id="btn-aplicar" class="px-6 py-2.5 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 shadow-md shadow-slate-900/20 transition-all cursor-pointer">
       Aplicar Cambios
     </button>
   </div>
   
   <div id="footer-actions-review" class="hidden gap-4">
-    <button id="btn-volver" class="px-6 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors">
+    <button id="btn-volver" class="px-6 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer">
       Volver a Edición
     </button>
-    <button id="btn-aprobar" class="px-6 py-2.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2">
+    <button id="btn-aprobar" class="px-6 py-2.5 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2 cursor-pointer">
       <CheckCircle2 size={18} strokeWidth={2.5} />
       Aprobar y Enviar a Firma
     </button>
@@ -24,7 +24,7 @@ import { CheckCircle2 } from 'lucide-react';
 </footer>
 
 <script>
-  import { resetFindings, setReviewMode, $isReviewMode } from '../store/analysisStore';
+  import { resetFindings, setReviewMode, $isReviewMode, loadDefaultContract } from '../store/analysisStore';
   import { setView } from '../store/routerStore';
 
   const btnDescartar = document.getElementById('btn-descartar');

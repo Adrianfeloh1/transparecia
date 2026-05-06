@@ -97,31 +97,15 @@ const findings = $findings.get() as Finding[];
     }, 10);
   });
 
-  // Update count badge and card states when individual findings change
+  // Update UI when findings change
   $findings.subscribe(findings => {
+    if (!cardsContainer || !countBadge) return;
+    
     const unresolvedCount = findings.filter(f => !f.isResolved).length;
-    if (countBadge) {
-      countBadge.textContent = `${unresolvedCount} Ítems`;
-    }
+    countBadge.textContent = `${unresolvedCount} Ítems`;
 
-    findings.forEach(finding => {
-      const card = document.getElementById(`card-${finding.id}`);
-      if (card && finding.isResolved) {
-        card.classList.add('opacity-50', 'grayscale');
-        card.classList.remove('hover:shadow-md');
-        card.classList.add('hover:grayscale-0');
-
-        const actionButtons = card.querySelector('.action-buttons');
-        if (actionButtons) actionButtons.innerHTML = '';
-
-        const iconContainer = card.querySelector('.icon-container');
-        if (iconContainer) {
-          const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
-          const titleText = iconContainer.querySelector('.title-text');
-          iconContainer.innerHTML = checkIcon + `<span class="title-text">${titleText?.textContent?.startsWith('Resuelto:') ? titleText.textContent : 'Resuelto: ' + finding.title}</span>`;
-        }
-      }
-    });
+    // Re-render all cards to ensure state (resolved/unresolved) is correctly reflected
+    cardsContainer.innerHTML = findings.map(f => `<div class="mb-5">${buildCard(f)}</div>`).join('');
   });
 
   // Delegate resolve button clicks

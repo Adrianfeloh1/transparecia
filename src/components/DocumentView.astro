@@ -61,18 +61,44 @@ const contract = $activeContract.get();
     });
   });
 
-  // Apply resolved text when a finding is resolved
+  // Update document text based on findings state
   $findings.subscribe(findings => {
+    const contract = $activeContract.get();
     findings.forEach(finding => {
+      const el = document.getElementById(`clause-${finding.id}`);
+      if (!el) return;
+
+      const clause = contract.clauses.find(c => c.id === finding.id);
+      
       if (finding.isResolved) {
-        const el = document.getElementById(`clause-${finding.id}`);
-        if (el && el.textContent !== finding.suggestedText) {
+        if (el.textContent !== finding.suggestedText) {
           el.className = 'text-slate-700 px-1 py-0.5 rounded-sm transition-all duration-500';
           el.style.opacity = '0';
           setTimeout(() => {
             el.textContent = finding.suggestedText;
             el.style.opacity = '1';
             el.classList.add('bg-emerald-50', 'text-emerald-900', 'font-medium');
+          }, 300);
+        }
+      } else {
+        // Revert to original if it was resolved
+        if (el.textContent !== finding.originalText) {
+          el.style.opacity = '0';
+          setTimeout(() => {
+            el.textContent = finding.originalText;
+            el.style.opacity = '1';
+            
+            // Restore original highlight if it existed
+            if (clause?.highlight) {
+              const highlightClass =
+                clause.highlight === 'red'    ? 'bg-red-100 border-b-2 border-red-400 text-slate-900 px-1 py-0.5 rounded-sm' :
+                clause.highlight === 'orange' ? 'bg-orange-100 border-b-2 border-orange-400 text-slate-900 px-1 py-0.5 rounded-sm' :
+                clause.highlight === 'green'  ? 'bg-emerald-100/60 border-b-2 border-emerald-400 text-slate-900 px-1 py-0.5 rounded-sm' :
+                '';
+              el.className = highlightClass + ' transition-all duration-500';
+            } else {
+              el.className = 'transition-all duration-500';
+            }
           }, 300);
         }
       }
