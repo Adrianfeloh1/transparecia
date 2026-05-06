@@ -1,0 +1,77 @@
+---
+import { LayoutDashboard, FileSearch, FileText, Settings, Plus, LogOut, GitMerge } from 'lucide-react';
+---
+
+<aside class="w-64 bg-gray-900 text-white flex flex-col justify-between shrink-0 shadow-xl z-20">
+  <div>
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6 border-b border-slate-800/80">
+      <span class="text-xl font-bold tracking-wider text-gray-400">Transparenc<span class="text-white">IA</span></span>
+    </div>
+    
+    <!-- Nav -->
+    <nav class="p-4 space-y-1.5" id="sidebar-nav">
+      <button data-nav="dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors text-slate-400 hover:bg-slate-800/80 hover:text-white">
+        <LayoutDashboard size={20} />
+        <span>Dashboard</span>
+      </button>
+      <button data-nav="politicas" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors text-slate-400 hover:bg-slate-800/80 hover:text-white">
+        <FileText size={20} />
+        <span>Políticas y Docs</span>
+      </button>
+      <button data-nav="analysis" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors text-slate-400 hover:bg-slate-800/80 hover:text-white">
+        <FileSearch size={20} />
+        <span>Análisis</span>
+      </button>
+      <button data-nav="flujos" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors text-slate-400 hover:bg-slate-800/80 hover:text-white">
+        <GitMerge size={20} />
+        <span>Flujos</span>
+      </button>
+      <button data-nav="configuracion" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors text-slate-400 hover:bg-slate-800/80 hover:text-white">
+        <Settings size={20} />
+        <span>Configuración</span>
+      </button>
+    </nav>
+  </div>
+  
+  <!-- Bottom Section -->
+  <div class="p-4 border-t border-slate-800/80 space-y-3">
+    <button class="w-full flex items-center justify-center gap-2 bg-gray-300 hover:bg-white text-slate-950 py-2.5 px-4 rounded-lg font-semibold shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all">
+      <Plus size={20} strokeWidth={2.5} />
+      <span>New Analysis</span>
+    </button>
+    <button class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-800/80 rounded-lg text-slate-400 hover:text-white transition-colors">
+      <LogOut size={18} />
+      <span class="text-sm">Cerrar Sesión</span>
+    </button>
+  </div>
+</aside>
+
+<script>
+  import { $currentView, setView } from '../store/routerStore';
+
+  const nav = document.getElementById('sidebar-nav');
+  if (nav) {
+    nav.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('[data-nav]');
+      if (btn) {
+        const view = btn.getAttribute('data-nav') as any;
+        if (view && view !== 'configuracion') {
+          setView(view);
+        }
+      }
+    });
+  }
+
+  $currentView.subscribe(view => {
+    document.querySelectorAll('[data-nav]').forEach(el => {
+      if (el.getAttribute('data-nav') === view) {
+        el.classList.add('bg-slate-800/80', 'text-white');
+        el.classList.remove('text-slate-400');
+      } else {
+        el.classList.remove('bg-slate-800/80', 'text-white');
+        el.classList.add('text-slate-400');
+      }
+    });
+  });
+</script>

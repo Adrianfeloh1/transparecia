@@ -1,0 +1,38 @@
+---
+import AlertCard from './AlertCard.astro';
+import { $findings, type Finding } from '../store/analysisStore';
+
+const findings = $findings.get() as Finding[];
+---
+
+<div class="flex flex-col gap-5 overflow-auto pb-24" id="alert-panel">
+  <h3 class="font-bold text-slate-800 text-lg mb-1 flex items-center justify-between">
+    <span>Alertas Detectadas</span>
+    <span class="text-xs font-semibold bg-slate-200 text-slate-600 px-2 py-1 rounded-full" id="alerts-count-badge">{findings.length} Ítems</span>
+  </h3>
+  
+  {findings.map((finding) => (
+    <AlertCard 
+      id={finding.id}
+      type={finding.type}
+      title={finding.title}
+      tag={finding.tag}
+      description={finding.description}
+      badges={finding.badges}
+      isResolved={finding.isResolved}
+    />
+  ))}
+</div>
+
+<script>
+  import { $findings } from '../store/analysisStore';
+
+  const countBadge = document.getElementById('alerts-count-badge');
+  
+  $findings.subscribe(findings => {
+    const unresolvedCount = findings.filter(f => !f.isResolved).length;
+    if (countBadge) {
+      countBadge.textContent = `${unresolvedCount} Ítems`;
+    }
+  });
+</script>

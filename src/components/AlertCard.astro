@@ -1,0 +1,110 @@
+---
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
+
+interface Props {
+	id: string;
+	title: string;
+	description: string;
+	tag: string;
+	type: 'critical' | 'observation' | 'success';
+	badges?: string[];
+	isResolved?: boolean;
+}
+
+const { id, title, description, tag, type, badges = [], isResolved = false } = Astro.props;
+
+const config = {
+	critical: {
+		borderColor: 'border-l-red-500',
+		iconColor: 'text-red-600',
+		bgColor: 'bg-red-50',
+		tagColor: 'bg-red-100 text-red-700'
+	},
+	observation: {
+		borderColor: 'border-l-slate-800',
+		iconColor: 'text-slate-800',
+		bgColor: 'bg-slate-50',
+		tagColor: 'bg-slate-100 text-slate-700'
+	},
+	success: {
+		borderColor: 'border-l-emerald-500',
+		iconColor: 'text-emerald-600',
+		bgColor: 'bg-emerald-50',
+		tagColor: 'bg-emerald-100 text-emerald-800'
+	}
+};
+
+const style = config[type];
+---
+
+<div id={`card-${id}`} class={`bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-l-4 ${style.borderColor} flex flex-col gap-3 transition-all duration-500 relative overflow-hidden group ${isResolved ? 'opacity-50 grayscale hover:grayscale-0' : 'hover:shadow-md'}`} data-finding-id={id}>
+  <div class={`absolute top-0 right-0 w-24 h-24 ${style.bgColor} rounded-bl-full -mr-12 -mt-12 transition-transform group-hover:scale-110`}></div>
+  <div class="flex items-start justify-between relative z-10">
+    <div class={`flex items-center gap-2.5 ${style.iconColor} font-bold`}>
+      <div class="icon-container">
+        {isResolved ? <CheckCircle2 size={20} className="text-emerald-500" /> : <AlertCircle size={20} />}
+      </div>
+      <span class="title-text">{isResolved ? 'Resuelto: ' + title : title}</span>
+    </div>
+    <span class={`text-xs ${style.tagColor} px-2.5 py-1 rounded-md font-bold shadow-sm whitespace-nowrap`}>{tag}</span>
+  </div>
+  <p class="text-sm text-slate-600 leading-relaxed relative z-10">{description}</p>
+  
+  {badges.length > 0 && (
+    <div class="mt-2 text-[11px] font-semibold text-slate-500 flex items-center gap-2 relative z-10">
+      {badges.map((badge) => (
+        <span class="bg-slate-100 px-2.5 py-1 rounded-md uppercase tracking-wide">{badge}</span>
+      ))}
+    </div>
+  )}
+
+  <div class="mt-3 relative z-10 action-buttons">
+    {!isResolved && (
+      <button 
+        data-resolve-btn={id}
+        class="text-sm w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm shadow-emerald-500/20 transition-all flex justify-center items-center gap-2"
+      >
+        Aprobar Verificación
+      </button>
+    )}
+  </div>
+</div>
+
+<script>
+  import { resolveFinding, $findings } from '../store/analysisStore';
+
+  // Add click listeners to all buttons
+  document.addEventListener('click', (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (!target) return;
+    
+    const btn = target.closest('[data-resolve-btn]');
+    if (btn) {
+      const id = btn.getAttribute('data-resolve-btn');
+      if (id) resolveFinding(id);
+    }
+  });
+
+  // Subscribe to changes to update styling of resolved cards
+  $findings.subscribe(findings => {
+    findings.forEach(finding => {
+      const card = document.getElementById(`card-${finding.id}`);
+      if (card && finding.isResolved) {
+        card.classList.add('opacity-50', 'grayscale');
+        card.classList.remove('hover:shadow-md');
+        card.classList.add('hover:grayscale-0');
+        
+        const actionButtons = card.querySelector('.action-buttons');
+        if (actionButtons) actionButtons.innerHTML = ''; // Remove button
+        
+        const iconContainer = card.querySelector('.icon-container');
+        if (iconContainer) iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle-2 text-emerald-500"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
+        
+        const titleText = card.querySelector('.title-text');
+        if (titleText && !titleText.textContent?.startsWith('Resuelto:')) {
+          titleText.textContent = 'Resuelto: ' + finding.title;
+        }
+      }
+    });
+  });
+</script>

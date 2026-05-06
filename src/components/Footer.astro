@@ -1,0 +1,33 @@
+---
+---
+
+<footer class="bg-white/95 backdrop-blur-md border-t border-slate-200 px-8 py-4 flex justify-end gap-4 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)] z-20">
+  <button id="btn-descartar" class="px-6 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors">
+    Descartar
+  </button>
+  <button id="btn-aplicar" class="px-6 py-2.5 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 shadow-md shadow-slate-900/20 transition-all">
+    Aplicar Cambios
+  </button>
+</footer>
+
+<script>
+  import { resetFindings } from '../store/analysisStore';
+
+  const btnDescartar = document.getElementById('btn-descartar');
+  const btnAplicar = document.getElementById('btn-aplicar');
+
+  if (btnDescartar) {
+    btnDescartar.addEventListener('click', () => {
+      resetFindings();
+    });
+  }
+
+  if (btnAplicar) {
+    btnAplicar.addEventListener('click', () => {
+      alert("Análisis guardado y enviado a Flujo de Aprobación");
+      // Optional: redirect to dashboard or flows
+      // import { setView } from '../store/routerStore';
+      // setView('flujos');
+    });
+  }
+</script>

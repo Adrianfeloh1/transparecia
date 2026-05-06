@@ -1,0 +1,51 @@
+---
+import { FileText, Download, Eye } from 'lucide-react';
+
+const policies = [
+  { name: 'Manual de Contratación 2025.pdf', size: '2.4 MB', date: '15 Ene 2025' },
+  { name: 'Código de Ética y Transparencia.pdf', size: '1.1 MB', date: '10 Feb 2025' },
+  { name: 'Guía de Compras Públicas.pdf', size: '3.8 MB', date: '05 Mar 2025' },
+];
+---
+
+<div class="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-800">Políticas y Normativas</h2>
+      <p class="text-slate-500 mt-1">Documentos base utilizados para la auditoría de IA.</p>
+    </div>
+    <button class="bg-slate-900 text-white px-4 py-2 rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-sm">
+      Subir Documento
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="divide-y divide-slate-100">
+      {policies.map(policy => (
+        <div class="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-red-500 shrink-0">
+              <FileText size={20} />
+            </div>
+            <div>
+              <h4 class="font-semibold text-slate-800 group-hover:text-emerald-600 transition-colors">{policy.name}</h4>
+              <div class="flex items-center gap-3 text-xs text-slate-500 mt-1 font-medium">
+                <span>{policy.size}</span>
+                <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                <span>Actualizado: {policy.date}</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors" title="Ver documento">
+              <Eye size={18} />
+            </button>
+            <button class="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors" title="Descargar">
+              <Download size={18} />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>

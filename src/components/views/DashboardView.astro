@@ -1,0 +1,70 @@
+---
+import { ShieldAlert, FileCheck, DollarSign, LayoutDashboard } from 'lucide-react';
+---
+
+<div class="max-w-7xl mx-auto h-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <!-- Card 1 -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all">
+      <div class="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center text-red-500 mb-4">
+        <ShieldAlert size={24} />
+      </div>
+      <h3 class="text-slate-500 text-sm font-medium">Riesgo Promedio</h3>
+      <p class="text-3xl font-bold text-slate-800 mt-1">12%</p>
+      <p class="text-emerald-500 text-sm font-medium mt-2">↓ 2% desde el mes pasado</p>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all">
+      <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500 mb-4">
+        <FileCheck size={24} />
+      </div>
+      <h3 class="text-slate-500 text-sm font-medium">Documentos Auditados</h3>
+      <p class="text-3xl font-bold text-slate-800 mt-1">45</p>
+      <p class="text-slate-400 text-sm font-medium mt-2">En los últimos 30 días</p>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-all">
+      <div class="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-500 mb-4">
+        <DollarSign size={24} />
+      </div>
+      <h3 class="text-slate-500 text-sm font-medium">Ahorro Estimado</h3>
+      <p class="text-3xl font-bold text-slate-800 mt-1">$200M</p>
+      <p class="text-emerald-500 text-sm font-medium mt-2">↑ 15% de optimización</p>
+    </div>
+  </div>
+  
+  <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+    <h3 class="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2">
+      <LayoutDashboard size={20} className="text-slate-400" />
+      Distribución de Riesgo por Departamento
+    </h3>
+    
+    <div class="space-y-6 max-w-3xl">
+      {[
+        { name: 'Tecnología (IT)', percentage: 15, color: 'bg-blue-400' },
+        { name: 'Infraestructura', percentage: 45, color: 'bg-orange-400' },
+        { name: 'Servicios Generales', percentage: 12, color: 'bg-blue-400' },
+        { name: 'Logística', percentage: 28, color: 'bg-blue-400' },
+      ].sort((a, b) => b.percentage - a.percentage).map(item => (
+        <div class="flex items-center gap-5 group cursor-default">
+          <div class="w-48 text-sm font-semibold text-slate-600 transition-colors group-hover:text-slate-900 truncate">
+            {item.name}
+          </div>
+          
+          <div class="flex-1 bg-slate-100 h-4 rounded-full overflow-hidden shadow-inner ring-1 ring-slate-900/5">
+            <div 
+              class={`h-full rounded-full ${item.color} transition-all duration-500 ease-out group-hover:brightness-110 group-hover:scale-[1.01] origin-left shadow-sm`}
+              style={`width: ${item.percentage}%`}
+            ></div>
+          </div>
+          
+          <div class="w-12 text-right text-sm font-bold text-slate-800 group-hover:scale-110 transition-transform origin-right">
+            {item.percentage}%
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
