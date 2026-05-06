@@ -31,7 +31,7 @@ import AnalysisModal from '../components/AnalysisModal.astro';
         <div class="flex-1 overflow-auto p-8 relative w-full h-full">
           <!-- View: analysis -->
           <div data-view-container="analysis" class="w-full h-full relative">
-            <div id="analysis-grid" class="grid grid-cols-2 gap-8 max-w-7xl mx-auto h-full transition-all duration-700 ease-in-out">
+            <div id="analysis-grid" class="grid gap-8 max-w-7xl mx-auto h-full transition-all duration-700 ease-in-out" style="grid-template-columns: 3fr 2fr;">
               <div id="document-container" class="transition-all duration-700 ease-in-out w-full mx-auto">
                 <DocumentView />
               </div>
@@ -97,8 +97,7 @@ import AnalysisModal from '../components/AnalysisModal.astro';
         if (grid && docContainer && alertPanel) {
           if (isReview) {
             // Switch to single column centered
-            grid.classList.remove('grid-cols-2', 'gap-8');
-            grid.classList.add('grid-cols-1');
+            grid.style.gridTemplateColumns = '1fr';
             
             // Limit width of document and center it
             docContainer.classList.add('max-w-[800px]');
@@ -108,16 +107,14 @@ import AnalysisModal from '../components/AnalysisModal.astro';
             alertPanel.classList.add('opacity-0', 'translate-x-8', 'pointer-events-none');
             setTimeout(() => {
               alertPanel.classList.add('hidden');
-            }, 500); // Wait for fade out
+            }, 500);
           } else {
-            // Restore split screen
-            grid.classList.remove('grid-cols-1');
-            grid.classList.add('grid-cols-2', 'gap-8');
+            // Restore 60/40 split
+            grid.style.gridTemplateColumns = '3fr 2fr';
             
             docContainer.classList.remove('max-w-[800px]');
             
             alertPanel.classList.remove('hidden');
-            // Small delay to allow display:block to apply before animating opacity
             setTimeout(() => {
               alertPanel.classList.remove('opacity-0', 'translate-x-8', 'pointer-events-none');
               alertPanel.classList.add('opacity-100', 'translate-x-0');
