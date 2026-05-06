@@ -2,10 +2,10 @@
 import { CheckCircle2, Clock, XCircle, ArrowRight } from 'lucide-react';
 
 const flows = [
-  { id: 'REQ-2025-001', doc: 'Contrato Mantenimiento Vial', res: 'María González', state: 'Aprobado', date: '01 May 2025' },
-  { id: 'REQ-2025-002', doc: 'Adquisición Equipos TI', res: 'Carlos Ramírez', state: 'Pendiente', date: '04 May 2025' },
-  { id: 'REQ-2025-003', doc: 'Servicios de Aseo', res: 'Ana Martínez', state: 'Pendiente', date: '05 May 2025' },
-  { id: 'REQ-2025-004', doc: 'Consultoría Externa', res: 'Luis Torres', state: 'Rechazado', date: '06 May 2025' },
+  { id: 'REQ-2025-001', doc: 'Contrato TECH SOLUTIONS', res: 'Adrián Felipe Ochoa H', initials: 'AFO', state: 'Aprobado', date: '01 May 2025' },
+  { id: 'REQ-2025-002', doc: 'Adquisición Equipos TI', res: 'Carlos Ramírez', initials: 'CR', state: 'Pendiente', date: '04 May 2025' },
+  { id: 'REQ-2025-003', doc: 'Servicios de Aseo', res: 'Ana Martínez', initials: 'AM', state: 'Pendiente', date: '05 May 2025' },
+  { id: 'REQ-2025-004', doc: 'Consultoría Externa', res: 'Luis Torres', initials: 'LT', state: 'Rechazado', date: '06 May 2025' },
 ];
 ---
 
@@ -35,8 +35,8 @@ const flows = [
             <td class="py-4 px-6 text-sm font-medium text-slate-400">{flow.id}</td>
             <td class="py-4 px-6 font-semibold text-slate-800">{flow.doc}</td>
             <td class="py-4 px-6 text-slate-600 flex items-center gap-2">
-              <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
-                {flow.res.split(' ').map(n => n[0]).join('')}
+              <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                {flow.initials}
               </div>
               {flow.res}
             </td>

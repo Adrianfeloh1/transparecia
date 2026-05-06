@@ -1,62 +1,73 @@
 ---
-import { $findings } from '../store/analysisStore';
-
-const findings = $findings.get();
-const f1 = findings.find(f => f.id === 'f1');
-const f2 = findings.find(f => f.id === 'f2');
-const f3 = findings.find(f => f.id === 'f3');
+import { $activeContract } from '../store/analysisStore';
+const contract = $activeContract.get();
 ---
 
-<div class="bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-xl p-12 overflow-auto relative min-h-[800px] border border-slate-200 ring-1 ring-slate-900/5">
+<div class="bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-xl p-12 overflow-auto relative min-h-[800px] border border-slate-200 ring-1 ring-slate-900/5" id="document-view-root">
   <!-- Decoración tipo hoja -->
   <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-slate-100 to-transparent"></div>
   
-  <h2 class="text-2xl font-bold mb-8 text-slate-900 border-b border-slate-100 pb-4">Contrato de Prestación de Servicios</h2>
+  <h2 id="doc-title" class="text-2xl font-bold mb-8 text-slate-900 border-b border-slate-100 pb-4">
+    {contract.title}
+  </h2>
   
-  <div class="space-y-6 text-slate-700 leading-relaxed text-justify">
-    <p>
-      Entre los suscritos, por una parte, LA ENTIDAD, con NIT 800.123.456-7, representada legalmente por su Director General, quien en adelante se denominará EL CONTRATANTE, y por la otra parte, TECH SOLUTIONS S.A.S., con NIT 900.987.654-3, representada por su Gerente, quien en adelante se denominará EL CONTRATISTA.
-    </p>
-    <p>
-      <span id="clause-f1" class="bg-red-100 border-b-2 border-red-400 text-slate-900 px-1 py-0.5 rounded-sm relative transition-all duration-500">
-        {f1?.originalText}
-      </span>
-      Este valor será pagado en cuotas mensuales, previa presentación de la factura y el informe de actividades, sujeto a las aprobaciones correspondientes por parte de la supervisión.
-    </p>
-    <p>
-      CLÁUSULA CUARTA - PLAZO DE EJECUCIÓN: El plazo de ejecución será de doce (12) meses, contados a partir de la firma del acta de inicio, y estará condicionado a la disponibilidad presupuestal de la vigencia fiscal correspondiente.
-    </p>
-    <p>
-      <span id="clause-f2" class="bg-orange-100 border-b-2 border-orange-400 text-slate-900 px-1 py-0.5 rounded-sm relative transition-all duration-500">
-        {f2?.originalText}
-      </span>
-      El manejo de este anticipo se realizará mediante una fiducia, conforme a las regulaciones vigentes de contratación estatal.
-    </p>
-    <p>
-      CLÁUSULA OCTAVA - OBLIGACIONES DEL CONTRATISTA: El contratista se compromete a mantener estricta confidencialidad sobre la información suministrada, entregar informes periódicos y garantizar la calidad técnica del servicio prestado bajo los más altos estándares de la industria.
-    </p>
-    <p>
-      CLÁUSULA NOVENA - CESIÓN Y SUBCONTRATACIÓN: El contratista no podrá ceder ni subcontratar total o parcialmente las obligaciones derivadas del presente contrato sin la autorización previa, expresa y escrita de la entidad contratante.
-    </p>
-    <p>
-      <span id="clause-f3" class="bg-emerald-100/60 border-b-2 border-emerald-400 text-slate-900 px-1 py-0.5 rounded-sm relative transition-all duration-500">
-        {f3?.originalText}
-      </span>
-    </p>
+  <div id="doc-clauses" class="space-y-6 text-slate-700 leading-relaxed text-justify">
+    {contract.clauses.map(clause => {
+      const highlightClass =
+        clause.highlight === 'red'    ? 'bg-red-100 border-b-2 border-red-400 text-slate-900 px-1 py-0.5 rounded-sm' :
+        clause.highlight === 'orange' ? 'bg-orange-100 border-b-2 border-orange-400 text-slate-900 px-1 py-0.5 rounded-sm' :
+        clause.highlight === 'green'  ? 'bg-emerald-100/60 border-b-2 border-emerald-400 text-slate-900 px-1 py-0.5 rounded-sm' :
+        '';
+      return (
+        <p>
+          {clause.highlight
+            ? <span id={`clause-${clause.id}`} class={`${highlightClass} transition-all duration-500`}>{clause.text}</span>
+            : <span id={`clause-${clause.id}`}>{clause.text}</span>
+          }
+        </p>
+      );
+    })}
   </div>
 </div>
 
 <script>
-  import { $findings } from '../store/analysisStore';
+  import { $findings, $activeContract } from '../store/analysisStore';
 
+  // Re-render document when contract changes
+  $activeContract.subscribe(contract => {
+    const title = document.getElementById('doc-title');
+    const clausesContainer = document.getElementById('doc-clauses');
+    if (!title || !clausesContainer) return;
+
+    title.textContent = contract.title;
+    clausesContainer.innerHTML = '';
+
+    contract.clauses.forEach(clause => {
+      const p = document.createElement('p');
+
+      const highlightClass =
+        clause.highlight === 'red'    ? 'bg-red-100 border-b-2 border-red-400 text-slate-900 px-1 py-0.5 rounded-sm transition-all duration-500' :
+        clause.highlight === 'orange' ? 'bg-orange-100 border-b-2 border-orange-400 text-slate-900 px-1 py-0.5 rounded-sm transition-all duration-500' :
+        clause.highlight === 'green'  ? 'bg-emerald-100/60 border-b-2 border-emerald-400 text-slate-900 px-1 py-0.5 rounded-sm transition-all duration-500' :
+        'transition-all duration-500';
+
+      const span = document.createElement('span');
+      span.id = `clause-${clause.id}`;
+      span.className = highlightClass;
+      span.textContent = clause.text;
+
+      p.appendChild(span);
+      clausesContainer.appendChild(p);
+    });
+  });
+
+  // Apply resolved text when a finding is resolved
   $findings.subscribe(findings => {
     findings.forEach(finding => {
       if (finding.isResolved) {
         const el = document.getElementById(`clause-${finding.id}`);
         if (el && el.textContent !== finding.suggestedText) {
-          // Remove highlight classes
-          el.className = "text-slate-700 px-1 py-0.5 rounded-sm relative transition-all duration-500";
-          // Update text with fade effect
+          el.className = 'text-slate-700 px-1 py-0.5 rounded-sm transition-all duration-500';
           el.style.opacity = '0';
           setTimeout(() => {
             el.textContent = finding.suggestedText;

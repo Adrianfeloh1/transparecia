@@ -1,0 +1,248 @@
+---
+import { FileText, FileSearch, X, Upload, Sparkles } from 'lucide-react';
+---
+
+<!-- Backdrop -->
+<div id="analysis-modal-backdrop" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center flex-col">
+
+  <!-- Modal: Upload Form -->
+  <div id="modal-form" class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden border border-slate-200">
+    <!-- Header -->
+    <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center">
+          <Sparkles size={18} className="text-white" />
+        </div>
+        <h2 class="text-xl font-bold text-slate-800">Iniciar Nueva Auditoría Inteligente</h2>
+      </div>
+      <button id="modal-close-btn" class="text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg p-1.5 transition-colors">
+        <X size={20} />
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="px-8 py-6 space-y-5">
+      <p class="text-sm text-slate-500">Carga los documentos que deseas comparar. La IA detectará inconsistencias, sesgos y cláusulas de riesgo automáticamente.</p>
+
+      <!-- Drop Zone 1 -->
+      <label class="group block cursor-pointer">
+        <input type="file" accept=".pdf,.doc,.docx" class="hidden" id="file-pliego" />
+        <div class="border-2 border-dashed border-slate-200 hover:border-slate-400 group-hover:bg-slate-50 rounded-xl p-6 transition-all flex items-start gap-4">
+          <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-500 shrink-0 group-hover:bg-blue-100 transition-colors">
+            <FileText size={24} />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-slate-800 text-sm">Pliego de Condiciones</p>
+            <p class="text-xs text-slate-500 mt-0.5">Documento de referencia de la entidad</p>
+            <p id="file-pliego-name" class="text-xs text-blue-600 font-medium mt-2 truncate hidden"></p>
+            <div class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg group-hover:border-slate-400 transition-colors">
+              <Upload size={13} />
+              Seleccionar archivo (PDF / Word)
+            </div>
+          </div>
+        </div>
+      </label>
+
+      <!-- Drop Zone 2 -->
+      <label class="group block cursor-pointer">
+        <input type="file" accept=".pdf,.doc,.docx" class="hidden" id="file-oferta" />
+        <div class="border-2 border-dashed border-slate-200 hover:border-slate-400 group-hover:bg-slate-50 rounded-xl p-6 transition-all flex items-start gap-4">
+          <div class="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-500 shrink-0 group-hover:bg-emerald-100 transition-colors">
+            <FileSearch size={24} />
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-slate-800 text-sm">Oferta del Proveedor</p>
+            <p class="text-xs text-slate-500 mt-0.5">Documento que será auditado por la IA</p>
+            <p id="file-oferta-name" class="text-xs text-emerald-600 font-medium mt-2 truncate hidden"></p>
+            <div class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg group-hover:border-slate-400 transition-colors">
+              <Upload size={13} />
+              Seleccionar archivo (PDF / Word)
+            </div>
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+      <button id="modal-cancel-btn" class="px-5 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-white hover:text-slate-900 transition-colors text-sm">
+        Cancelar
+      </button>
+      <button id="modal-start-btn" class="px-5 py-2.5 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 shadow-md shadow-slate-900/20 transition-all text-sm flex items-center gap-2">
+        <Sparkles size={15} />
+        Iniciar Análisis
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: Processing View (hidden by default) -->
+  <div id="modal-processing" class="hidden bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-10 flex flex-col items-center text-center border border-slate-200">
+    <!-- Spinner -->
+    <div class="relative w-20 h-20 mb-8">
+      <div class="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
+      <div class="absolute inset-0 border-4 border-t-slate-800 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin"></div>
+      <div class="absolute inset-2 border-4 border-t-transparent border-r-transparent border-b-emerald-400 border-l-transparent rounded-full animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
+    </div>
+
+    <h3 class="text-lg font-bold text-slate-800 mb-2">Procesando con IA</h3>
+    <p id="processing-message" class="text-sm text-slate-500 transition-all duration-300">Iniciando análisis...</p>
+
+    <!-- Steps -->
+    <div class="mt-8 w-full space-y-2.5 text-left">
+      <div id="step-1" class="flex items-center gap-3 text-sm text-slate-400 opacity-30 transition-all duration-500">
+        <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0"></div>
+        <span>Extrayendo entidades clave</span>
+      </div>
+      <div id="step-2" class="flex items-center gap-3 text-sm text-slate-400 opacity-30 transition-all duration-500">
+        <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0"></div>
+        <span>Cruzando criterios de evaluación</span>
+      </div>
+      <div id="step-3" class="flex items-center gap-3 text-sm text-slate-400 opacity-30 transition-all duration-500">
+        <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0"></div>
+        <span>Detectando posibles sesgos</span>
+      </div>
+      <div id="step-4" class="flex items-center gap-3 text-sm text-slate-400 opacity-30 transition-all duration-500">
+        <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0"></div>
+        <span>Generando reporte de hallazgos</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  import { setView } from '../store/routerStore';
+  import { loadComputersContract, setReviewMode } from '../store/analysisStore';
+
+  const backdrop = document.getElementById('analysis-modal-backdrop');
+  const modalForm = document.getElementById('modal-form');
+  const modalProcessing = document.getElementById('modal-processing');
+  const closeBtns = [
+    document.getElementById('modal-close-btn'),
+    document.getElementById('modal-cancel-btn'),
+  ];
+  const startBtn = document.getElementById('modal-start-btn');
+  const processingMsg = document.getElementById('processing-message');
+
+  const steps = [
+    document.getElementById('step-1'),
+    document.getElementById('step-2'),
+    document.getElementById('step-3'),
+    document.getElementById('step-4'),
+  ];
+
+  // File name display
+  const filePliego = document.getElementById('file-pliego') as HTMLInputElement;
+  const fileOferta = document.getElementById('file-oferta') as HTMLInputElement;
+  const filePliegoName = document.getElementById('file-pliego-name');
+  const fileOfertaName = document.getElementById('file-oferta-name');
+
+  filePliego?.addEventListener('change', () => {
+    if (filePliego.files?.[0] && filePliegoName) {
+      filePliegoName.textContent = '✓ ' + filePliego.files[0].name;
+      filePliegoName.classList.remove('hidden');
+    }
+  });
+
+  fileOferta?.addEventListener('change', () => {
+    if (fileOferta.files?.[0] && fileOfertaName) {
+      fileOfertaName.textContent = '✓ ' + fileOferta.files[0].name;
+      fileOfertaName.classList.remove('hidden');
+    }
+  });
+
+  // Open modal from any button with data-open-modal
+  document.addEventListener('click', (e) => {
+    const target = (e.target as HTMLElement).closest('[data-open-modal]');
+    if (target) openModal();
+  });
+
+  function openModal() {
+    if (!backdrop) return;
+    backdrop.classList.remove('hidden');
+    backdrop.classList.add('flex');
+    // Reset to form view
+    modalForm?.classList.remove('hidden');
+    modalProcessing?.classList.add('hidden');
+    modalProcessing?.classList.remove('flex');
+  }
+
+  function closeModal() {
+    if (!backdrop) return;
+    backdrop.classList.add('hidden');
+    backdrop.classList.remove('flex');
+  }
+
+  // Close on backdrop click
+  backdrop?.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeModal();
+  });
+
+  // Close buttons
+  closeBtns.forEach(btn => btn?.addEventListener('click', closeModal));
+
+  // Start analysis
+  startBtn?.addEventListener('click', () => {
+    // Switch to processing view
+    modalForm?.classList.add('hidden');
+    modalProcessing?.classList.remove('hidden');
+    modalProcessing?.classList.add('flex');
+
+    const messages = [
+      'Extrayendo entidades clave...',
+      'Cruzando criterios de evaluación...',
+      'Detectando posibles sesgos...',
+      'Generando reporte de hallazgos...',
+    ];
+
+    let stepIndex = 0;
+
+    const activateStep = (index: number) => {
+      const step = steps[index];
+      if (!step) return;
+      step.classList.remove('opacity-30', 'text-slate-400');
+      step.classList.add('text-slate-800', 'font-semibold');
+      const dot = step.querySelector('div');
+      if (dot) {
+        dot.classList.remove('border-slate-300');
+        dot.classList.add('border-emerald-500', 'bg-emerald-50');
+        dot.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>`;
+      }
+      if (processingMsg) {
+        processingMsg.style.opacity = '0';
+        setTimeout(() => {
+          if (processingMsg) processingMsg.textContent = messages[index];
+          processingMsg.style.opacity = '1';
+        }, 150);
+      }
+    };
+
+    // Activate steps progressively
+    const interval = setInterval(() => {
+      activateStep(stepIndex);
+      stepIndex++;
+      if (stepIndex >= steps.length) clearInterval(interval);
+    }, 1200);
+
+    // After all steps, close and navigate
+    setTimeout(() => {
+      closeModal();
+      loadComputersContract();
+      setReviewMode(false);
+      setView('analysis');
+
+      // Reset step styles for next open
+      steps.forEach(step => {
+        if (!step) return;
+        step.classList.add('opacity-30', 'text-slate-400');
+        step.classList.remove('text-slate-800', 'font-semibold');
+        const dot = step.querySelector('div');
+        if (dot) {
+          dot.classList.add('border-slate-300');
+          dot.classList.remove('border-emerald-500', 'bg-emerald-50');
+          dot.innerHTML = '';
+        }
+      });
+    }, 5500);
+  });
+</script>

@@ -8,6 +8,7 @@ import Footer from '../components/Footer.astro';
 import DashboardView from '../components/views/DashboardView.astro';
 import PoliticasView from '../components/views/PoliticasView.astro';
 import FlujosView from '../components/views/FlujosView.astro';
+import AnalysisModal from '../components/AnalysisModal.astro';
 ---
 
 <html lang="es">
@@ -17,6 +18,7 @@ import FlujosView from '../components/views/FlujosView.astro';
     <title>TransparencIA - Dashboard</title>
   </head>
   <body class="font-sans antialiased text-slate-800">
+    <AnalysisModal />
     <div class="flex h-screen overflow-hidden bg-slate-50">
       
       <Sidebar />
@@ -28,10 +30,14 @@ import FlujosView from '../components/views/FlujosView.astro';
 
         <div class="flex-1 overflow-auto p-8 relative w-full h-full">
           <!-- View: analysis -->
-          <div data-view-container="analysis" class="w-full h-full">
-            <div class="grid grid-cols-2 gap-8 max-w-7xl mx-auto h-full">
-              <DocumentView />
-              <AlertPanel />
+          <div data-view-container="analysis" class="w-full h-full relative">
+            <div id="analysis-grid" class="grid grid-cols-2 gap-8 max-w-7xl mx-auto h-full transition-all duration-700 ease-in-out">
+              <div id="document-container" class="transition-all duration-700 ease-in-out w-full mx-auto">
+                <DocumentView />
+              </div>
+              <div id="alert-panel-container" class="transition-all duration-500 ease-in-out opacity-100 transform translate-x-0 overflow-hidden">
+                <AlertPanel />
+              </div>
             </div>
           </div>
 
@@ -60,6 +66,7 @@ import FlujosView from '../components/views/FlujosView.astro';
 
     <script>
       import { $currentView } from '../store/routerStore';
+      import { $isReviewMode } from '../store/analysisStore';
 
       $currentView.subscribe(view => {
         // Toggle view containers
@@ -78,6 +85,43 @@ import FlujosView from '../components/views/FlujosView.astro';
             footer.classList.remove('hidden');
           } else {
             footer.classList.add('hidden');
+          }
+        }
+      });
+
+      $isReviewMode.subscribe(isReview => {
+        const grid = document.getElementById('analysis-grid');
+        const docContainer = document.getElementById('document-container');
+        const alertPanel = document.getElementById('alert-panel-container');
+
+        if (grid && docContainer && alertPanel) {
+          if (isReview) {
+            // Switch to single column centered
+            grid.classList.remove('grid-cols-2', 'gap-8');
+            grid.classList.add('grid-cols-1');
+            
+            // Limit width of document and center it
+            docContainer.classList.add('max-w-[800px]');
+            
+            // Hide alert panel smoothly
+            alertPanel.classList.remove('opacity-100', 'translate-x-0');
+            alertPanel.classList.add('opacity-0', 'translate-x-8', 'pointer-events-none');
+            setTimeout(() => {
+              alertPanel.classList.add('hidden');
+            }, 500); // Wait for fade out
+          } else {
+            // Restore split screen
+            grid.classList.remove('grid-cols-1');
+            grid.classList.add('grid-cols-2', 'gap-8');
+            
+            docContainer.classList.remove('max-w-[800px]');
+            
+            alertPanel.classList.remove('hidden');
+            // Small delay to allow display:block to apply before animating opacity
+            setTimeout(() => {
+              alertPanel.classList.remove('opacity-0', 'translate-x-8', 'pointer-events-none');
+              alertPanel.classList.add('opacity-100', 'translate-x-0');
+            }, 10);
           }
         }
       });

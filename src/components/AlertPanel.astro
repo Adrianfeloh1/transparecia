@@ -11,28 +11,128 @@ const findings = $findings.get() as Finding[];
     <span class="text-xs font-semibold bg-slate-200 text-slate-600 px-2 py-1 rounded-full" id="alerts-count-badge">{findings.length} Ítems</span>
   </h3>
   
-  {findings.map((finding) => (
-    <AlertCard 
-      id={finding.id}
-      type={finding.type}
-      title={finding.title}
-      tag={finding.tag}
-      description={finding.description}
-      badges={finding.badges}
-      isResolved={finding.isResolved}
-    />
-  ))}
+  <!-- Static SSR cards for initial render -->
+  <div id="alert-cards-container">
+    {findings.map((finding) => (
+      <div class="mb-5">
+        <AlertCard 
+          id={finding.id}
+          type={finding.type}
+          title={finding.title}
+          tag={finding.tag}
+          description={finding.description}
+          badges={finding.badges}
+          isResolved={finding.isResolved}
+        />
+      </div>
+    ))}
+  </div>
 </div>
 
 <script>
-  import { $findings } from '../store/analysisStore';
+  import { $findings, $activeContract } from '../store/analysisStore';
 
   const countBadge = document.getElementById('alerts-count-badge');
-  
+  const cardsContainer = document.getElementById('alert-cards-container');
+
+  const typeConfig = {
+    critical: {
+      borderColor: 'border-l-red-500',
+      iconColor: 'text-red-600',
+      bgColor: 'bg-red-50',
+      tagColor: 'bg-red-100 text-red-700'
+    },
+    observation: {
+      borderColor: 'border-l-slate-800',
+      iconColor: 'text-slate-800',
+      bgColor: 'bg-slate-50',
+      tagColor: 'bg-slate-100 text-slate-700'
+    },
+    success: {
+      borderColor: 'border-l-emerald-500',
+      iconColor: 'text-emerald-600',
+      bgColor: 'bg-emerald-50',
+      tagColor: 'bg-emerald-100 text-emerald-800'
+    }
+  };
+
+  function buildCard(finding: any): string {
+    const style = typeConfig[finding.type as keyof typeof typeConfig];
+    const resolved = finding.isResolved;
+    const badges = finding.badges?.map((b: string) =>
+      `<span class="bg-slate-100 px-2.5 py-1 rounded-md uppercase tracking-wide">${b}</span>`
+    ).join('') ?? '';
+
+    const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
+    const alertIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>`;
+
+    return `
+      <div id="card-${finding.id}"
+        class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 border-l-4 ${style.borderColor} flex flex-col gap-3 transition-all duration-500 relative overflow-hidden group ${resolved ? 'opacity-50 grayscale hover:grayscale-0' : 'hover:shadow-md'}"
+        data-finding-id="${finding.id}">
+        <div class="${style.bgColor} absolute top-0 right-0 w-24 h-24 rounded-bl-full -mr-12 -mt-12 transition-transform group-hover:scale-110"></div>
+        <div class="flex items-start justify-between relative z-10">
+          <div class="flex items-center gap-2.5 ${style.iconColor} font-bold icon-container">
+            ${resolved ? checkIcon : alertIcon}
+            <span class="title-text">${resolved ? 'Resuelto: ' + finding.title : finding.title}</span>
+          </div>
+          <span class="text-xs ${style.tagColor} px-2.5 py-1 rounded-md font-bold shadow-sm whitespace-nowrap">${finding.tag}</span>
+        </div>
+        <p class="text-sm text-slate-600 leading-relaxed relative z-10">${finding.description}</p>
+        ${finding.badges?.length > 0 ? `<div class="mt-2 text-[11px] font-semibold text-slate-500 flex items-center gap-2 relative z-10">${badges}</div>` : ''}
+        <div class="mt-3 relative z-10 action-buttons">
+          ${!resolved ? `<button data-resolve-btn="${finding.id}" class="text-sm w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-sm shadow-emerald-500/20 transition-all flex justify-center items-center gap-2">Aprobar Verificación</button>` : ''}
+        </div>
+      </div>`;
+  }
+
+  // Re-render all cards when contract/findings change
+  $activeContract.subscribe(() => {
+    // Wait for $findings to be updated too (they update together in loadContract)
+    setTimeout(() => {
+      const findings = $findings.get();
+      if (!cardsContainer || !countBadge) return;
+      cardsContainer.innerHTML = findings.map(f => `<div class="mb-5">${buildCard(f)}</div>`).join('');
+      countBadge.textContent = `${findings.length} Ítems`;
+    }, 10);
+  });
+
+  // Update count badge and card states when individual findings change
   $findings.subscribe(findings => {
     const unresolvedCount = findings.filter(f => !f.isResolved).length;
     if (countBadge) {
       countBadge.textContent = `${unresolvedCount} Ítems`;
+    }
+
+    findings.forEach(finding => {
+      const card = document.getElementById(`card-${finding.id}`);
+      if (card && finding.isResolved) {
+        card.classList.add('opacity-50', 'grayscale');
+        card.classList.remove('hover:shadow-md');
+        card.classList.add('hover:grayscale-0');
+
+        const actionButtons = card.querySelector('.action-buttons');
+        if (actionButtons) actionButtons.innerHTML = '';
+
+        const iconContainer = card.querySelector('.icon-container');
+        if (iconContainer) {
+          const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>`;
+          const titleText = iconContainer.querySelector('.title-text');
+          iconContainer.innerHTML = checkIcon + `<span class="title-text">${titleText?.textContent?.startsWith('Resuelto:') ? titleText.textContent : 'Resuelto: ' + finding.title}</span>`;
+        }
+      }
+    });
+  });
+
+  // Delegate resolve button clicks
+  document.addEventListener('click', (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const btn = target.closest('[data-resolve-btn]');
+    if (btn) {
+      const id = btn.getAttribute('data-resolve-btn');
+      if (id) {
+        import('../store/analysisStore').then(({ resolveFinding }) => resolveFinding(id));
+      }
     }
   });
 </script>
